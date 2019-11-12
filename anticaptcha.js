@@ -412,6 +412,7 @@ var Anticaptcha = function(clientKey, usePrecaching) {
                         // construct an HTTP request
                         var xhr = new XMLHttpRequest();
                         xhr.open('POST', url, true);
+                        xhr.responseType = 'json';
                         xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
                         // send the collected data as JSON
@@ -419,11 +420,7 @@ var Anticaptcha = function(clientKey, usePrecaching) {
 
                         xhr.onloadend = function () {
                             if (xhr.status == 200) {
-                                var jsonResult;
-                                try {
-                                    jsonResult = JSON.parse(xhr.response);
-                                } catch (e) {
-                                }
+                                var jsonResult = xhr.response;
 
                                 if (jsonResult && jsonResult.errorId) {
                                     return cb(new Error(jsonResult.errorDescription, jsonResult.errorCode), jsonResult);
