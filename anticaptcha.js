@@ -408,6 +408,32 @@ var Anticaptcha = function(clientKey, usePrecaching) {
                                 }
                             }
                         );
+                    } else if (typeof XMLHttpRequest !== 'undefined') {
+                        // construct an HTTP request
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', url, true);
+                        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+                        // send the collected data as JSON
+                        xhr.send(JSON.stringify(postData));
+
+                        xhr.onloadend = function () {
+                            if (xhr.status == 200) {
+                                var jsonResult;
+                                try {
+                                    jsonResult = JSON.parse(xhr.response);
+                                } catch (e) {
+                                }
+
+                                if (jsonResult && jsonResult.errorId) {
+                                    return cb(new Error(jsonResult.errorDescription, jsonResult.errorCode), jsonResult);
+                                }
+
+                                cb(false, jsonResult);
+                            } else {
+                                cb(new Error('Unknown error, watch console'));
+                            }
+                        };
                     }
                 } else {
                     console.error('Application should be run either in NodeJs or a WebBrowser environment');
