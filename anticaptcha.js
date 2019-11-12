@@ -377,33 +377,40 @@ var Anticaptcha = function(clientKey, usePrecaching) {
                     });
 
                     return req;
-                } else if ((typeof window !== 'undefined' || typeof chrome === 'object') && typeof jQuery == 'function') { // in browser or chrome extension with jQuery
+                } else if (
+                    // in browser or chrome extension
+                    typeof window !== 'undefined' || typeof chrome === 'object'
+                ) {
                     var protocol;
                     protocol = window.location.protocol != 'http:' ? 'https:' : window.location.protocol;
                     var url = protocol + '//'
                                 + this.params.host
                                 + (protocol != 'https:' ? ':' + this.params.port : '')
                                 + '/' + methodName;
-                    jQuery.ajax(
-                        url,
-                        {
-                            method: 'POST',
-                            data: JSON.stringify(postData),
-                            dataType: 'json',
-                            success: function (jsonResult) {
-                                if (jsonResult && jsonResult.errorId) {
-                                    return cb(new Error(jsonResult.errorDescription, jsonResult.errorCode), jsonResult);
-                                }
 
-                                cb(false, jsonResult);
-                            },
-                            error: function (jqXHR, textStatus, errorThrown) {
-                                cb(new Error(textStatus != 'error' ? textStatus : 'Unknown error, watch console')); // should be errorThrown
+                    // with jQuery
+                    if (typeof jQuery == 'function') {
+                        jQuery.ajax(
+                            url,
+                            {
+                                method: 'POST',
+                                data: JSON.stringify(postData),
+                                dataType: 'json',
+                                success: function (jsonResult) {
+                                    if (jsonResult && jsonResult.errorId) {
+                                        return cb(new Error(jsonResult.errorDescription, jsonResult.errorCode), jsonResult);
+                                    }
+
+                                    cb(false, jsonResult);
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    cb(new Error(textStatus != 'error' ? textStatus : 'Unknown error, watch console')); // should be errorThrown
+                                }
                             }
-                        }
-                    );
+                        );
+                    }
                 } else {
-                    console.error('Application should be run either in NodeJs environment or has jQuery to be included');
+                    console.error('Application should be run either in NodeJs or a WebBrowser environment');
                 }
             } else {
                 // move to subclass
