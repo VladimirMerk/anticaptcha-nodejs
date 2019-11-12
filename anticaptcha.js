@@ -343,11 +343,14 @@ var Anticaptcha = function(clientKey) {
 
                 return req;
             } else if ((typeof window !== 'undefined' || typeof chrome === 'object') && typeof jQuery == 'function') { // in browser or chrome extension with jQuery
-                jQuery.ajax(
-                      (window.location.protocol == 'https:' ? 'https:' : 'http:') + '//'
+                var protocol;
+                protocol = window.location.protocol != 'http:' ? 'https:' : window.location.protocol;
+                var url = protocol + '//'
                     + this.params.host
-                    + (window.location.protocol != 'https:' ? ':' + this.params.port : '')
-                    + '/' + methodName,
+                    + (protocol != 'https:' ? ':' + this.params.port : '')
+                    + '/' + methodName;
+                jQuery.ajax(
+                    url,
                     {
                         method: 'POST',
                         data: JSON.stringify(postData),
